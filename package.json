@@ -1,0 +1,23 @@
+{
+  "name": "deliveryfeeportioncalculator",
+  "version": "1.0.0",
+  "description": "Calculate delivery fee portions on the fly",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prcbass/deliveryfeeportioncalculator.git"
+  },
+  "author": "Sebastián S. Hernández",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prcbass/deliveryfeeportioncalculator/issues"
+  },
+  "homepage": "https://github.com/prcbass/deliveryfeeportioncalculator#readme",
+  "devDependencies": {
+    "electron": "^1.4.0"
+  }
+}
