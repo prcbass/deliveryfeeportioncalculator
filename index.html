@@ -9,5 +9,19 @@
     We are using node <script>document.write(process.versions.node)</script>,
     Chrome <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>.
+
+    <input id="mainInput" type="text" placeholder="Enter some text!" autofocus></input>
+    <button id="mainSubmit" type="submit">Submit text</button>
+    <script>
+      const {ipcRenderer} = require('electron');
+
+      document.getElementById('mainSubmit').onclick = function(){
+        let textInput = document.getElementById('mainInput').value;
+        console.log(textInput === '');
+
+        console.log(ipcRenderer.sendSync('test-message', textInput));
+      };
+
+    </script>
   </body>
 </html>
