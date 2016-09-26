@@ -2,25 +2,90 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Delivery Fee Portion Calculator!</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chrome <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
-
-    <input id="mainInput" type="text" placeholder="Enter some text!" autofocus></input>
-    <button id="mainSubmit" type="submit">Submit text</button>
+    <script>window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.js');</script>
+    <h1>Delivery Fee Portion Calculator!</h1>
+    <div id="orderInputContainer">
+      <input id="itemOneInput" type="text" placeholder="Enter the price of item 1!" autofocus></input>
+    </div>
+    <div>
+      <input id="orderMainDeliveryFee" type="text" placeholder="Enter total misc. delivery fees"></input>
+      <input id="orderTaxAndFees" type="text" placeholder="Enter taxes and other fees field."></input>
+      <input id="orderTip" type="text" placeholder="Enter the tip amount."></input>
+    </div>
+    <button id="inputAdd">Add item input field</button>
+    <button id="inputRemove">Remove last item input field</button>
+    <button id="mainSubmit">Submit Delivery Values</button>
+    <div id="orderResultContainer">
+    </div>
     <script>
       const {ipcRenderer} = require('electron');
+      let dynamicInputId;
+      let inputCount = 1;
 
-      document.getElementById('mainSubmit').onclick = function(){
-        let textInput = document.getElementById('mainInput').value;
-        console.log(textInput === '');
+      window.$('#mainSubmit').click(function(){
+        let itemOnePrice = document.getElementById('itemOneInput').value;
+        //let itemTwoPrice = document.getElementById('itemTwoInput').value;
+        let orderMainDeliveryFee = document.getElementById('orderMainDeliveryFee').value;
+        let orderTaxAndFees = document.getElementById('orderTaxAndFees').value;
+        let orderTip = document.getElementById('orderTip').value;
+        let itemPriceArray = [];
 
-        console.log(ipcRenderer.sendSync('test-message', textInput));
-      };
+        itemPriceArray.push(window.$('#itemOneInput').val());
+
+        //TODO: Fix funky index start point 
+        for(let i = 2; i <= inputCount; i++){
+          let dynamicItemVal = window.$('#dynamicInput' + i).val();
+          itemPriceArray.push(dynamicItemVal);
+        }
+
+        console.log(itemPriceArray);
+
+        order = {
+          itemPriceArray : itemPriceArray,
+          orderMainDeliveryFee: orderMainDeliveryFee,
+          orderTaxAndFees: orderTaxAndFees,
+          orderTip: orderTip
+        };
+
+        let resultPriceArray = ipcRenderer.sendSync('test-delivery', order);
+        
+        console.log('IPC RETURNED VALUE: ' + resultPriceArray);
+
+        for(let i=0; i<resultPriceArray.length; i++){
+          console.log('Price for item ' + (i+1) + ' is: ' + resultPriceArray[i]);
+          let resultP = window.$('<p>Price for item ' + (i+1) + ' is: ' + resultPriceArray[i] + '</p>');
+          window.$('#orderResultContainer').append(resultP);
+        }
+      });
+
+      window.$('#inputAdd').click(function(){
+        //TODO: come-up with consistent way of naming input fields (especially dynamically created input fields)
+        ++inputCount;
+        let input = window.$('<input>');
+        let dynamicInputText = 'Enter the price of item ' + inputCount;
+        dynamicInputId = 'dynamicInput' + inputCount;
+
+        input.attr('id', dynamicInputId);
+        input.attr('placeholder', dynamicInputText);
+        console.log(inputCount);
+
+        let divToAdd = window.$('#orderInputContainer');
+        divToAdd.append(input);
+      });
+
+      //TODO: FIX THIS
+      window.$('#inputRemove').click(function(){
+        if(inputCount == 1){
+          console.log('Cant remove more input fields!');
+          return;
+        }
+
+        window.$(dynamicInputId).remove();
+        inputCount--;
+      });
 
     </script>
   </body>

@@ -33,7 +33,40 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on('test-message', (event, arg) => {
+ipcMain.on('test-delivery', (event, arg) => {
   console.log(arg);
-  event.returnValue = 'you bet it is!';
+  let itemCount = arg.itemPriceArray.length;
+  let itemPriceArray = arg.itemPriceArray;
+  // let total;
+
+  // for(let i=0; i<itemPriceArray.length; i++){
+  //   total += parseFloat(itemPriceArray[i]);
+  // }
+
+  //need to split costs of delivery and tip. Tax is then added as a percentage of original order?
+  //TODO: assumes one item per person. fix this
+  let splitDeliveryFee = parseFloat(arg.orderMainDeliveryFee)/itemCount;
+  let splitTipFee = parseFloat(arg.orderTip)/itemCount;
+
+  let totalTaxAmount = 0;
+
+  for(let i=0; i<itemCount; i++){
+    totalTaxAmount += parseFloat(itemPriceArray[i]) * .06;
+  }
+
+  let extraFeeAmount = parseFloat(arg.orderTaxAndFees) - totalTaxAmount;
+  let splitExtraFee = extraFeeAmount/itemCount;
+  let totalItemPrice = [];
+
+  for(let i=0; i<itemCount; i++){
+    //console.log(i);
+    console.log(parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee);
+    console.log(parseFloat(itemPriceArray[i]));
+    console.log(splitDeliveryFee);
+    console.log(splitTipFee);
+    console.log(splitExtraFee);
+    totalItemPrice[i] = parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee;
+  }
+
+  event.returnValue = totalItemPrice;
 })
