@@ -8,11 +8,15 @@
     <script>window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.js');</script>
     <h1>Delivery Fee Portion Calculator!</h1>
     <div id="orderInputContainer">
+      <label for="itemOneInput">Item 1 Price:</label>
       <input id="itemOneInput" type="text" placeholder="Enter the price of item 1!" autofocus></input>
     </div>
     <div>
+      <label for="orderMainDeliveryFee">Total Misc. Delivery Fees: </label>
       <input id="orderMainDeliveryFee" type="text" placeholder="Enter total misc. delivery fees"></input>
+      <label for="orderTaxAndFees">Total Tax And Extra Fees: </label>
       <input id="orderTaxAndFees" type="text" placeholder="Enter taxes and other fees field."></input>
+      <label for="orderTip">Total Tip Amount: </label>
       <input id="orderTip" type="text" placeholder="Enter the tip amount."></input>
     </div>
     <button id="inputAdd">Add item input field</button>
@@ -73,7 +77,11 @@
         console.log(inputCount);
 
         let divToAdd = window.$('#orderInputContainer');
+        let inputLabel = window.$('<label for=' + dynamicInputId + '>Item ' + inputCount + ' Price: </label>');
+
+        divToAdd.append(inputLabel);
         divToAdd.append(input);
+
       });
 
       //TODO: FIX THIS
