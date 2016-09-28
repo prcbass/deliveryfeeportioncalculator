@@ -9,7 +9,8 @@ function createWindow(){
 
   win.loadURL(winPath);
 
-  win.webContents.openDevTools();
+  //to open console on application load
+  //win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;
@@ -30,6 +31,7 @@ app.on('activate', () => {
   }
 })
 
+//TODO: Validate user input (e.g. input tax amount is less than valid tax amount)
 ipcMain.on('test-delivery', (event, arg) => {
   console.log(arg);
   let itemCount = arg.itemPriceArray.length;
@@ -51,7 +53,6 @@ ipcMain.on('test-delivery', (event, arg) => {
   let totalItemPrice = [];
 
   for(let i=0; i<itemCount; i++){
-    //console.log(i);
     console.log(parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee);
     console.log(parseFloat(itemPriceArray[i]));
     console.log(splitDeliveryFee);

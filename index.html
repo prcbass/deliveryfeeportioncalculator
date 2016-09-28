@@ -3,32 +3,45 @@
   <head>
     <meta charset="UTF-8">
     <title>Delivery Fee Portion Calculator!</title>
+    <link href='./node_modules/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet'>
+    <link href='./main.css' rel='stylesheet'>
   </head>
   <body>
-    <script>window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.js');</script>
+    <script>window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');</script>
     <h1>Delivery Fee Portion Calculator!</h1>
     <div id="orderInputContainer">
       <label for="itemOneInput">Item 1 Price:</label>
-      <input id="itemOneInput" type="text" placeholder="Enter the price of item 1!" autofocus></input>
+      <input id="itemOneInput" type="text" placeholder="Enter the price of item 1" autofocus></input>
     </div>
-    <div>
+    <div id="otherInputContainer">
       <label for="orderMainDeliveryFee">Total Misc. Delivery Fees: </label>
       <input id="orderMainDeliveryFee" type="text" placeholder="Enter total misc. delivery fees"></input>
+      <br>
       <label for="orderTaxAndFees">Total Tax And Extra Fees: </label>
       <input id="orderTaxAndFees" type="text" placeholder="Enter taxes and other fees field."></input>
+      <br>
       <label for="orderTip">Total Tip Amount: </label>
       <input id="orderTip" type="text" placeholder="Enter the tip amount."></input>
     </div>
-    <button id="inputAdd">Add item input field</button>
-    <button id="inputRemove">Remove last item input field</button>
-    <button id="mainSubmit">Submit Delivery Values</button>
+    <div id="buttonContainer">
+      <button id="inputAdd">Add item input field</button>
+      <button id="inputRemove">Remove last item input field</button>
+      <button id="mainSubmit">Submit Delivery Values</button>
+    </div>
     <div id="orderResultContainer">
     </div>
     <script>
       const {ipcRenderer} = require('electron');
-      let dynamicInputId, inputLabelId;
-      let dynamicInputIdStack = [], inputLabelIdStack = [];
+      //TODO:Do these still need to be at global scope? =====================
+      let dynamicInputId, inputLabelId, brId;
+      //=======================================
+      let dynamicInputIdStack = [], inputLabelIdStack = [], brIdStack = [];
       let inputCount = 1;
+
+      //set size of input fields >= to length of placeholder text
+      $('input[placeholder]').each(function () {
+        $(this).attr('size', $(this).attr('placeholder').length);
+      });
 
       $('#mainSubmit').click(function(){
         let itemOnePrice = $('#itemOneInput').val();
@@ -44,8 +57,6 @@
           itemPriceArray.push($('#' + dynamicInputId).val());
         }
 
-        console.log(itemPriceArray);
-
         let order = {
           itemPriceArray : itemPriceArray,
           orderMainDeliveryFee: orderMainDeliveryFee,
@@ -54,8 +65,6 @@
         };
 
         let resultPriceArray = ipcRenderer.sendSync('test-delivery', order);
-        
-        console.log('IPC RETURNED VALUE: ' + resultPriceArray);
 
         //clear results of previous calculations
         $('#orderResultContainer').empty();
@@ -66,10 +75,12 @@
         }
       });
 
-      window.$('#inputAdd').click(function(){
+      $('#inputAdd').click(function(){
         inputCount++;
         dynamicInputId = 'dynamicInput' + inputCount;
         inputLabelId = 'inputLabel' + inputCount;
+        brId = 'br'+ inputCount;
+
 
         let inputAttributes = {};
         inputAttributes.id = dynamicInputId;
@@ -80,29 +91,34 @@
         inputLabelAttributes.for = dynamicInputId;
         let inputLabelValue = 'Item ' + inputCount + ' Price: ';
 
+        let brAttributes = {};
+        brAttributes.id = brId
+
         let input = createElement('input', inputAttributes);
         let inputLabel = createElement('label', inputLabelAttributes, inputLabelValue);
+        let br = createElement('br', brAttributes);
 
         let divToAdd = $('#orderInputContainer');
+        divToAdd.append(br);
         divToAdd.append(inputLabel);
         divToAdd.append(input);
 
         dynamicInputIdStack.push(dynamicInputId);
         inputLabelIdStack.push(inputLabelId);
+        brIdStack.push(brId);
       });
 
-      window.$('#inputRemove').click(function(){
+      $('#inputRemove').click(function(){
+        //TODO: display errors to user instead of just printing to console
         if(inputCount === 1){
           console.log('Cant remove more input fields!');
           return;
         }
 
-        $('#' + dynamicInputIdStack[dynamicInputIdStack.length - 1]).remove();
-        $('#' + inputLabelIdStack[inputLabelIdStack.length - 1]).remove();
-
+        $('#' + brIdStack.pop()).remove();
+        $('#' + dynamicInputIdStack.pop()).remove();
+        $('#' + inputLabelIdStack.pop()).remove();
         inputCount--;
-        dynamicInputIdStack.pop();
-        inputLabelIdStack.pop();
       });
 
       //elementType::String of element type
@@ -118,9 +134,6 @@
         }
 
         if(value !== null){
-          console.log('ENTERED OPTIONAL VALUE SCOPE');
-          console.log('VALUE: ' + value);
-          //element.val(value);
           element.text(value);
         }
 
