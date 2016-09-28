@@ -27,27 +27,26 @@
     <script>
       const {ipcRenderer} = require('electron');
       let dynamicInputId, inputLabelId;
+      let dynamicInputIdStack = [], inputLabelIdStack = [];
       let inputCount = 1;
 
-      window.$('#mainSubmit').click(function(){
-        let itemOnePrice = document.getElementById('itemOneInput').value;
-        //let itemTwoPrice = document.getElementById('itemTwoInput').value;
-        let orderMainDeliveryFee = document.getElementById('orderMainDeliveryFee').value;
-        let orderTaxAndFees = document.getElementById('orderTaxAndFees').value;
-        let orderTip = document.getElementById('orderTip').value;
+      $('#mainSubmit').click(function(){
+        let itemOnePrice = $('#itemOneInput').val();
+        let orderMainDeliveryFee = $('#orderMainDeliveryFee').val();
+        let orderTaxAndFees = $('#orderTaxAndFees').val();
+        let orderTip = $('#orderTip').val();
         let itemPriceArray = [];
 
-        itemPriceArray.push(window.$('#itemOneInput').val());
+        //We should always have at least one item (due to static input)
+        itemPriceArray.push($('#itemOneInput').val());
 
-        //TODO: Fix funky index start point 
         for(let i = 2; i <= inputCount; i++){
-          let dynamicItemVal = window.$('#dynamicInput' + i).val();
-          itemPriceArray.push(dynamicItemVal);
+          itemPriceArray.push($('#' + dynamicInputId).val());
         }
 
         console.log(itemPriceArray);
 
-        order = {
+        let order = {
           itemPriceArray : itemPriceArray,
           orderMainDeliveryFee: orderMainDeliveryFee,
           orderTaxAndFees: orderTaxAndFees,
@@ -58,48 +57,75 @@
         
         console.log('IPC RETURNED VALUE: ' + resultPriceArray);
 
-        for(let i=0; i<resultPriceArray.length; i++){
-          console.log('Price for item ' + (i+1) + ' is: ' + resultPriceArray[i]);
-          let resultP = window.$('<p>Price for item ' + (i+1) + ' is: ' + resultPriceArray[i] + '</p>');
-          window.$('#orderResultContainer').append(resultP);
+        //clear results of previous calculations
+        $('#orderResultContainer').empty();
+
+        for(let i=0; i < resultPriceArray.length; i++){
+          let resultP = createElement('p', null, 'Price for item ' + (i+1) + ' is: ' + resultPriceArray[i]);
+          $('#orderResultContainer').append(resultP);
         }
       });
 
       window.$('#inputAdd').click(function(){
-        //TODO: come-up with consistent way of naming input fields (especially dynamically created input fields)
-        ++inputCount;
-        let input = window.$('<input>');
-        let dynamicInputText = 'Enter the price of item ' + inputCount;
+        inputCount++;
         dynamicInputId = 'dynamicInput' + inputCount;
         inputLabelId = 'inputLabel' + inputCount;
 
-        input.attr('id', dynamicInputId);
-        input.attr('placeholder', dynamicInputText);
-        console.log(inputCount);
+        let inputAttributes = {};
+        inputAttributes.id = dynamicInputId;
+        inputAttributes.placeholder = 'Enter the price of item ' + inputCount;
 
-        let divToAdd = window.$('#orderInputContainer');
-        let inputLabel = window.$('<label id=' + inputLabelId + ' for=' + dynamicInputId + '>Item ' + inputCount + ' Price: </label>');
+        let inputLabelAttributes = {};
+        inputLabelAttributes.id = inputLabelId;
+        inputLabelAttributes.for = dynamicInputId;
+        let inputLabelValue = 'Item ' + inputCount + ' Price: ';
 
+        let input = createElement('input', inputAttributes);
+        let inputLabel = createElement('label', inputLabelAttributes, inputLabelValue);
+
+        let divToAdd = $('#orderInputContainer');
         divToAdd.append(inputLabel);
         divToAdd.append(input);
 
+        dynamicInputIdStack.push(dynamicInputId);
+        inputLabelIdStack.push(inputLabelId);
       });
 
-      //TODO: FIX THIS
       window.$('#inputRemove').click(function(){
-        if(inputCount == 1){
+        if(inputCount === 1){
           console.log('Cant remove more input fields!');
           return;
         }
 
-        console.log('START INPUT COUNT: ' + inputCount);
-        window.$('#' + dynamicInputId).remove();
-        window.$('#' + inputLabelId).remove();
+        $('#' + dynamicInputIdStack[dynamicInputIdStack.length - 1]).remove();
+        $('#' + inputLabelIdStack[inputLabelIdStack.length - 1]).remove();
+
         inputCount--;
-        console.log('END INPUT COUNT: ' + inputCount);
-        dynamicInputId = 'dynamicInput' + inputCount;
-        inputLabelId = 'dynamicInputId' + inputCount;
+        dynamicInputIdStack.pop();
+        inputLabelIdStack.pop();
       });
+
+      //elementType::String of element type
+      //attributes::Associative Array of attribute names and values (optional)
+      //value::String of value for element (optional)
+      function createElement(elementType, attributes = null, value = null){
+        let element = $('<' + elementType + '>');
+
+        if(attributes !== null){
+          for(attributeName in attributes){
+            element.attr(attributeName, attributes[attributeName]);
+          }
+        }
+
+        if(value !== null){
+          console.log('ENTERED OPTIONAL VALUE SCOPE');
+          console.log('VALUE: ' + value);
+          //element.val(value);
+          element.text(value);
+        }
+
+        return element;
+      }
 
     </script>
   </body>

@@ -1,9 +1,6 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
-const express = require('express');
 
-//TODO: Maybe get rid of express?
-let router = express();
 let win;
 
 function createWindow(){
@@ -37,11 +34,6 @@ ipcMain.on('test-delivery', (event, arg) => {
   console.log(arg);
   let itemCount = arg.itemPriceArray.length;
   let itemPriceArray = arg.itemPriceArray;
-  // let total;
-
-  // for(let i=0; i<itemPriceArray.length; i++){
-  //   total += parseFloat(itemPriceArray[i]);
-  // }
 
   //need to split costs of delivery and tip. Tax is then added as a percentage of original order?
   //TODO: assumes one item per person. fix this
