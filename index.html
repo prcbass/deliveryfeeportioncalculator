@@ -26,7 +26,7 @@
     </div>
     <script>
       const {ipcRenderer} = require('electron');
-      let dynamicInputId;
+      let dynamicInputId, inputLabelId;
       let inputCount = 1;
 
       window.$('#mainSubmit').click(function(){
@@ -71,13 +71,14 @@
         let input = window.$('<input>');
         let dynamicInputText = 'Enter the price of item ' + inputCount;
         dynamicInputId = 'dynamicInput' + inputCount;
+        inputLabelId = 'inputLabel' + inputCount;
 
         input.attr('id', dynamicInputId);
         input.attr('placeholder', dynamicInputText);
         console.log(inputCount);
 
         let divToAdd = window.$('#orderInputContainer');
-        let inputLabel = window.$('<label for=' + dynamicInputId + '>Item ' + inputCount + ' Price: </label>');
+        let inputLabel = window.$('<label id=' + inputLabelId + ' for=' + dynamicInputId + '>Item ' + inputCount + ' Price: </label>');
 
         divToAdd.append(inputLabel);
         divToAdd.append(input);
@@ -91,8 +92,13 @@
           return;
         }
 
-        window.$(dynamicInputId).remove();
+        console.log('START INPUT COUNT: ' + inputCount);
+        window.$('#' + dynamicInputId).remove();
+        window.$('#' + inputLabelId).remove();
         inputCount--;
+        console.log('END INPUT COUNT: ' + inputCount);
+        dynamicInputId = 'dynamicInput' + inputCount;
+        inputLabelId = 'dynamicInputId' + inputCount;
       });
 
     </script>
