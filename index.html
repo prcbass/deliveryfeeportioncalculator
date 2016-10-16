@@ -54,8 +54,12 @@
         itemPriceArray.push($('#itemOneInput').val());
 
         for(let i = 2; i <= inputCount; i++){
-          itemPriceArray.push($('#' + dynamicInputId).val());
+          console.log('dynamicInput' + i);
+          console.log($('#dynamicInput' + i).val());
+          itemPriceArray.push($('#dynamicInput' + i).val());
         }
+
+        console.log(itemPriceArray);
 
         let order = {
           itemPriceArray : itemPriceArray,
@@ -64,7 +68,13 @@
           orderTip: orderTip
         };
 
-        let resultPriceArray = ipcRenderer.sendSync('test-delivery', order);
+        try{
+          let resultPriceArray = ipcRenderer.sendSync('test-delivery', order);
+        }
+        catch(e){
+          console.log('ERROR');
+          console.log(e);
+        }
 
         //clear results of previous calculations
         $('#orderResultContainer').empty();

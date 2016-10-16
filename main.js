@@ -10,11 +10,16 @@ function createWindow(){
   win.loadURL(winPath);
 
   //to open console on application load
-  //win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;
   })
+}
+
+function GeneralException(message){
+  this.message = message;
+  this.name = "GeneralException"
 }
 
 app.on('ready', createWindow);
@@ -48,17 +53,22 @@ ipcMain.on('test-delivery', (event, arg) => {
     totalTaxAmount += parseFloat(itemPriceArray[i]) * .06;
   }
 
+  if(orderTip < totalTaxAmount){
+    throw new GeneralException('Invalid Tax amount');
+  }
+
   let extraFeeAmount = parseFloat(arg.orderTaxAndFees) - totalTaxAmount;
   let splitExtraFee = extraFeeAmount/itemCount;
   let totalItemPrice = [];
 
   for(let i=0; i<itemCount; i++){
-    console.log(parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee);
-    console.log(parseFloat(itemPriceArray[i]));
-    console.log(splitDeliveryFee);
-    console.log(splitTipFee);
-    console.log(splitExtraFee);
+    console.log('Base item price: ' + parseFloat(itemPriceArray[i]));
+    console.log('Per person delivery fee: ' + splitDeliveryFee);
+    console.log('Per person tip fee: ' + splitTipFee);
+    console.log('Per person \'extra fee\': ' + splitExtraFee);
+    console.log('Per person total: ' + (parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee));
     totalItemPrice[i] = parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee;
+    console.log('===================================================================');
   }
 
   event.returnValue = totalItemPrice;
