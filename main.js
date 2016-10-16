@@ -19,7 +19,7 @@ function createWindow(){
 
 function GeneralException(message){
   this.message = message;
-  this.name = "GeneralException"
+  this.name = 'GeneralException'
 }
 
 app.on('ready', createWindow);
@@ -42,7 +42,6 @@ ipcMain.on('test-delivery', (event, arg) => {
   let itemCount = arg.itemPriceArray.length;
   let itemPriceArray = arg.itemPriceArray;
 
-  //need to split costs of delivery and tip. Tax is then added as a percentage of original order?
   //TODO: assumes one item per person. fix this
   let splitDeliveryFee = parseFloat(arg.orderMainDeliveryFee)/itemCount;
   let splitTipFee = parseFloat(arg.orderTip)/itemCount;
@@ -53,23 +52,39 @@ ipcMain.on('test-delivery', (event, arg) => {
     totalTaxAmount += parseFloat(itemPriceArray[i]) * .06;
   }
 
-  if(orderTip < totalTaxAmount){
-    throw new GeneralException('Invalid Tax amount');
+  //TODO: Implement solution that chain exceptions together and deliverys them all at once to user
+  //Maybe create wrapper object with name field and array of exception objects field
+  if(arg.orderTaxAndFees < totalTaxAmount){
+    event.returnValue = new GeneralException('Invalid tax amount. Total tax must be at least ' + totalTaxAmount);
   }
 
-  let extraFeeAmount = parseFloat(arg.orderTaxAndFees) - totalTaxAmount;
-  let splitExtraFee = extraFeeAmount/itemCount;
+  if(arg.orderMainDeliveryFee < 0){
+    event.returnValue = new GeneralException('Invalid delivery fee amount. Deliery fee must be greater than 0');
+  }
+
+  if(arg.orderTip < 0){
+    event.returnValue = new GeneralException('Invalid tip amount. Tip must be greater than 0');
+  }
+
+  let extraTaxFeeAmount = parseFloat(arg.orderTaxAndFees) - totalTaxAmount;
+  let splitExtraFee = extraTaxFeeAmount/itemCount;
   let totalItemPrice = [];
 
   for(let i=0; i<itemCount; i++){
+    let currentItemTax = parseFloat(itemPriceArray[i]) * .06;
     console.log('Base item price: ' + parseFloat(itemPriceArray[i]));
     console.log('Per person delivery fee: ' + splitDeliveryFee);
     console.log('Per person tip fee: ' + splitTipFee);
     console.log('Per person \'extra fee\': ' + splitExtraFee);
-    console.log('Per person total: ' + (parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee));
-    totalItemPrice[i] = parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee;
+    console.log('Current item tax amt: ' + currentItemTax);
+    console.log('Per person total: ' + (parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee + currentItemTax));
+    totalItemPrice[i] = parseFloat(itemPriceArray[i]) + splitDeliveryFee + splitTipFee + splitExtraFee + currentItemTax;
     console.log('===================================================================');
   }
 
   event.returnValue = totalItemPrice;
 })
+
+
+
+

@@ -44,19 +44,31 @@
       });
 
       $('#mainSubmit').click(function(){
+        if(!allInputFieldsFull()){
+          $('#orderResultContainer').empty();
+
+          let emptyFieldsP = createElement('p', null, 'Please enter a valid value for all input fields.');
+          $('#orderResultContainer').append(emptyFieldsP);
+          return;
+        }
+
+        //clear results of previous calculations
+        $('#orderResultContainer').empty();
+
         let itemOnePrice = $('#itemOneInput').val();
         let orderMainDeliveryFee = $('#orderMainDeliveryFee').val();
         let orderTaxAndFees = $('#orderTaxAndFees').val();
         let orderTip = $('#orderTip').val();
         let itemPriceArray = [];
+        let resultPriceArray;
 
         //We should always have at least one item (due to static input)
         itemPriceArray.push($('#itemOneInput').val());
 
-        for(let i = 2; i <= inputCount; i++){
-          console.log('dynamicInput' + i);
-          console.log($('#dynamicInput' + i).val());
-          itemPriceArray.push($('#dynamicInput' + i).val());
+        for(let i = 0; i < dynamicInputIdStack.length; i++){
+          console.log(dynamicInputIdStack[i]);
+          console.log($('#' + dynamicInputIdStack[i]).val());
+          itemPriceArray.push($('#' + dynamicInputIdStack[i]).val());
         }
 
         console.log(itemPriceArray);
@@ -68,19 +80,21 @@
           orderTip: orderTip
         };
 
-        try{
-          let resultPriceArray = ipcRenderer.sendSync('test-delivery', order);
-        }
-        catch(e){
-          console.log('ERROR');
-          console.log(e);
-        }
+        let resultMessage = ipcRenderer.sendSync('test-delivery', order);
+        if(resultMessage.name !== undefined && resultMessage.name === 'GeneralException'){
 
-        //clear results of previous calculations
-        $('#orderResultContainer').empty();
+          let resultException = resultMessage;
+
+          let errorP = createElement('p', null, resultException.message);
+          $('#orderResultContainer').append(errorP);
+          return;
+        }
+        else{
+          resultPriceArray = resultMessage;
+        }
 
         for(let i=0; i < resultPriceArray.length; i++){
-          let resultP = createElement('p', null, 'Price for item ' + (i+1) + ' is: ' + resultPriceArray[i]);
+          let resultP = createElement('p', null, 'Price for item ' + (i+1) + ' is: $' + resultPriceArray[i]);
           $('#orderResultContainer').append(resultP);
         }
       });
@@ -148,6 +162,25 @@
         }
 
         return element;
+      }
+
+      function allInputFieldsFull(){
+        if($('#itemOneInput').val() === '' ||
+          $('#orderMainDeliveryFee').val() === '' ||
+          $('#orderTaxAndFees').val() === '' ||
+          $('#orderTip').val() === ''){
+
+          return false;
+        }
+
+        for(var i=0; i<dynamicInputIdStack.length; i++){
+          if($('#' + dynamicInputIdStack[i]).val() === ''){
+
+            return false;
+          }
+        }
+
+        return true;
       }
 
     </script>
