@@ -8,11 +8,11 @@ I have my food delivered fairly often. Most of the time I order food along with 
 
 ### How does the math work?
 
-Main delivery fee: Fee charged by delivery service, this should be split evenly amongst all individuals ordering food* 
+**Main delivery fee:** Fee charged by delivery service, this should be split evenly amongst all individuals ordering food* 
 
-Order Tip: Tip amount agreed upon by individuals involved in an order. This amount should be split evenly amongst all individuals ordering food*
+**Order Tip:** Tip amount agreed upon by individuals involved in an order. This amount should be split evenly amongst all individuals ordering food*
 
-Tax and Extra fees: Delivery companies will occasionally add extra fees and include them as part of the “tax due” amount. To mitigate this, the delivery fee portion calculator calculates how much more money than the total tax (6% in Florida) is being charged and splits that “extra amount” evenly amongst all individuals ordering food*. An example is shown below:
+**Tax and Extra fees:** Delivery companies will occasionally add extra fees and include them as part of the “tax due” amount. To mitigate this, the delivery fee portion calculator calculates how much more money than the total tax (6% in Florida) is being charged and splits that “extra amount” evenly amongst all individuals ordering food*. An example is shown below:
 
 Item 1 Price: $5
 Item 2 Price: $3
