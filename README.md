@@ -37,10 +37,10 @@ Note that the delivery fee portion calculator takes into account the case where 
 Relevant code for validating user input and calculating delivery fee portions can be found in `main.js` and `index.html` 
 
 To-do/Planned Features:
-  *Unit tests
-  *Create desktop application executables (Mac OSX, Windows, Linux) to install and run on other machines
-  *Allow creation of “users”/”customers” that can have multiple food items attributed to themselves. Display total price portions on a “per user” basis instead of a “per item” basis
-  *Write less javascript in “index.html”, move code to separate file? 
-  *Allow users to set tax percentage (currently uses 6%, hard-coded for Florida) 
-  *More input validation (invalid price amounts like entering characters instead of numbers, etc.) 
+1. Unit tests
+2. Create desktop application executables (Mac OSX, Windows, Linux) to install and run on other machines
+3. Allow creation of “users”/”customers” that can have multiple food items attributed to themselves. Display total price portions on a “per user” basis instead of a “per item” basis
+4. Write less javascript in “index.html”, move code to separate file? 
+5. Allow users to set tax percentage (currently uses 6%, hard-coded for Florida) 
+6. More input validation (invalid price amounts like entering characters instead of numbers, etc.) 
 
